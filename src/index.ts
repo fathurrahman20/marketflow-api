@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import user from "./user/user-controller";
+import brand from "./brand/brand-controller";
 import { HTTPException } from "hono/http-exception";
 import { ZodError } from "zod";
 import { fromError } from "zod-validation-error";
@@ -24,6 +25,7 @@ app.get("/", (c) => {
 });
 
 app.route("/api/users", user);
+app.route("/api/brands", brand);
 
 // Error Handling
 app.onError(async (err, c) => {
