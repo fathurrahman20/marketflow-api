@@ -11,8 +11,9 @@ const app = new Hono();
 app.use(
   "*",
   cors({
-    origin: "*",
+    origin: Bun.env.FE_URL!,
     allowMethods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
   })
 );
 

@@ -109,7 +109,7 @@ export class UserService {
         httpOnly: true,
         maxAge: 24 * 60 * 60, // 1 day in seconds
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day/24 hours from now
-        sameSite: "Strict",
+        sameSite: "Lax",
       }
     );
 
@@ -124,7 +124,7 @@ export class UserService {
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60, // 7 day in seconds
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-        sameSite: "Strict",
+        sameSite: "Lax",
       }
     );
 
