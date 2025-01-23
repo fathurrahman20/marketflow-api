@@ -12,8 +12,37 @@ import { User } from "@prisma/client";
 import { Context } from "hono";
 import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 import { AppVariables } from "../middleware/auth-middleware";
+import { clearAuthCookies, setAuthCookies } from "../utils/cookie-utils";
 
 export class UserService {
+  static async getUsers() {
+    const users = await prisma.user.findMany();
+
+    const response = users.map((user) => {
+      return {
+        ...user,
+        password: undefined,
+      };
+    });
+
+    return response;
+  }
+
+  static async getUser(id: number) {
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      throw new HTTPException(404, { message: "User not found" });
+    }
+
+    const response: Partial<User> = {
+      ...user,
+      password: undefined,
+    };
+
+    return response;
+  }
+
   static async register(request: RegisterUserRequest) {
     request = UserValidation.REGISTER.parse(request);
 
@@ -36,11 +65,7 @@ export class UserService {
       data: request,
     });
 
-    const newUser: Partial<User> = {
-      ...user,
-      password: undefined,
-    };
-    return newUser;
+    return userResponse(user);
   }
 
   static async login(c: Context, request: LoginUserRequest) {
@@ -73,7 +98,7 @@ export class UserService {
       name: user.name,
       email: user.email,
       role: user.role,
-      tokenOrigin: "/api/users/login",
+      tokenOrigin: "/api/auth/login",
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day
     };
 
@@ -83,7 +108,7 @@ export class UserService {
       name: user.name,
       email: user.email,
       role: user.role,
-      tokenOrigin: "/api/users/login",
+      tokenOrigin: "/api/auth/login",
       exp: Math.floor(Date.now() / 1000) + 14 * 24 * 60 * 60, // 7 days
     };
 
@@ -99,36 +124,9 @@ export class UserService {
       Bun.env.REFRESH_TOKEN_SECRET!
     );
 
-    await setSignedCookie(
-      c,
-      "auth_token",
-      accessToken,
-      Bun.env.COOKIE_SECRET!,
-      {
-        path: "/",
-        httpOnly: true,
-        maxAge: 24 * 60 * 60, // 1 day in seconds
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day/24 hours from now
-        sameSite: "Lax",
-      }
-    );
+    await setAuthCookies(c, accessToken, refreshToken, Bun.env.COOKIE_SECRET!);
 
-    // create cookie containing refresh token
-    await setSignedCookie(
-      c,
-      "refresh_token",
-      refreshToken,
-      Bun.env.COOKIE_SECRET!,
-      {
-        path: "/",
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60, // 7 day in seconds
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-        sameSite: "Lax",
-      }
-    );
-
-    return accessTokenPayload;
+    return userResponse(user);
   }
 
   static async refresh(c: Context) {
@@ -156,7 +154,7 @@ export class UserService {
       name,
       email,
       role,
-      tokenOrigin: "/api/users/refresh",
+      tokenOrigin: "/api/auth/refresh",
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day
     };
 
@@ -165,7 +163,7 @@ export class UserService {
       name,
       email,
       role,
-      tokenOrigin: "/api/users/refresh",
+      tokenOrigin: "/api/auth/refresh",
       exp: Math.floor(Date.now() / 1000) + 7 * 60 * 60 * 24, // 7 day
     };
 
@@ -178,33 +176,11 @@ export class UserService {
       Bun.env.REFRESH_TOKEN_SECRET!
     );
 
-    // Set new token in cookies
-    await setSignedCookie(
+    await setAuthCookies(
       c,
-      "auth_token",
       newAccessToken,
-      Bun.env.COOKIE_SECRET!,
-      {
-        path: "/",
-        httpOnly: true,
-        maxAge: 24 * 60 * 60, // 1 day in seconds
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day/24 hours from now
-        sameSite: "Strict",
-      }
-    );
-
-    await setSignedCookie(
-      c,
-      "refresh_token",
       newRefreshToken,
-      Bun.env.COOKIE_SECRET!,
-      {
-        path: "/",
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60, // 7 day in seconds
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-        sameSite: "Strict",
-      }
+      Bun.env.COOKIE_SECRET!
     );
 
     return true;
@@ -237,7 +213,7 @@ export class UserService {
       name: updatedUser.name,
       email: updatedUser.email,
       role: updatedUser.role,
-      tokenOrigin: "/api/users/update",
+      tokenOrigin: "/api/auth/me/update",
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day
     };
 
@@ -247,7 +223,7 @@ export class UserService {
       name: updatedUser.name,
       email: updatedUser.email,
       role: updatedUser.role,
-      tokenOrigin: "/api/users/update",
+      tokenOrigin: "/api/auth/me/update",
       exp: Math.floor(Date.now() / 1000) + 14 * 24 * 60 * 60, // 7 days
     };
 
@@ -261,35 +237,7 @@ export class UserService {
       Bun.env.REFRESH_TOKEN_SECRET!
     );
 
-    // Set the updated access token in cookie
-    await setSignedCookie(
-      c,
-      "auth_token",
-      accessToken,
-      Bun.env.COOKIE_SECRET!,
-      {
-        path: "/",
-        httpOnly: true,
-        maxAge: 24 * 60 * 60, // 1 day
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        sameSite: "Strict",
-      }
-    );
-
-    // Set the updated refresh token in cookie
-    await setSignedCookie(
-      c,
-      "refresh_token",
-      refreshToken,
-      Bun.env.COOKIE_SECRET!,
-      {
-        path: "/",
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        sameSite: "Strict",
-      }
-    );
+    await setAuthCookies(c, accessToken, refreshToken, Bun.env.COOKIE_SECRET!);
 
     return userResponse(updatedUser);
   }
@@ -310,15 +258,7 @@ export class UserService {
       throw new HTTPException(401, { message: "Unauthorized" });
     }
 
-    deleteCookie(c, "auth_token", {
-      path: "/",
-      httpOnly: true,
-    });
-
-    deleteCookie(c, "refresh_token", {
-      path: "/",
-      httpOnly: true,
-    });
+    clearAuthCookies(c);
 
     return true;
   }

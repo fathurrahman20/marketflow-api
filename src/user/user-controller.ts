@@ -11,7 +11,34 @@ import { User } from "@prisma/client";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
-app.post("/", async (c) => {
+app.get("/users", async (c) => {
+  const response = await UserService.getUsers();
+
+  return c.json(
+    {
+      success: true,
+      message: "Successfully fetched list of users",
+      data: response,
+    },
+    200
+  );
+});
+
+app.get("/users/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const response = await UserService.getUser(id);
+
+  return c.json(
+    {
+      success: true,
+      message: "Successfully fetched user data",
+      data: response,
+    },
+    200
+  );
+});
+
+app.post("/auth/register", async (c) => {
   const request = (await c.req.json()) as RegisterUserRequest;
 
   const response = await UserService.register(request);
@@ -26,7 +53,7 @@ app.post("/", async (c) => {
   );
 });
 
-app.post("/login", async (c) => {
+app.post("/auth/login", async (c) => {
   const request = (await c.req.json()) as LoginUserRequest;
 
   const response = await UserService.login(c, request);
@@ -34,7 +61,7 @@ app.post("/login", async (c) => {
   return c.json(
     {
       success: true,
-      message: "User login successfully",
+      message: "User logged in successfully",
       data: response,
     },
     200
@@ -43,25 +70,27 @@ app.post("/login", async (c) => {
 
 app.use(authMiddleware);
 
-app.get("/current", async (c) => {
+app.get("/auth/me", async (c) => {
   const user = c.get("user") as User;
 
   return c.json({
+    success: true,
+    message: "Successfully fetched user data",
     data: user,
   });
 });
 
-app.get("/refresh", async (c) => {
+app.get("/auth/refresh", async (c) => {
   const response = await UserService.refresh(c);
 
   return c.json({
     success: true,
-    message: "get refresh token successfully",
+    message: "Successfully refreshed the token",
     data: response,
   });
 });
 
-app.patch("/current", async (c) => {
+app.patch("/auth/me", async (c) => {
   const user = c.get("user") as User;
   const request = (await c.req.json()) as UpdateUserRequest;
 
@@ -69,17 +98,17 @@ app.patch("/current", async (c) => {
 
   return c.json({
     success: true,
-    message: "Update successfully",
+    message: "User data updated successfully",
     data: response,
   });
 });
 
-app.delete("/current", async (c) => {
+app.delete("/auth/me", async (c) => {
   const response = await UserService.logout(c);
 
   return c.json({
     success: true,
-    message: "Logout successfully",
+    message: "User logged out successfully",
     data: response,
   });
 });

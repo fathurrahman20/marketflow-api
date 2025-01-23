@@ -26,7 +26,7 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
-app.route("/api/users", user);
+app.route("/api", user);
 app.route("/api/brands", brand);
 app.route("/api/categories", category);
 app.route("/api/products", product);
