@@ -45,6 +45,11 @@ export class BrandService {
   static async create(request: CreateBrandRequest) {
     request = BrandValidation.CREATE.parse(request);
 
+    request = {
+      ...request,
+      name: request.name.trim().toLowerCase(),
+    };
+
     await this.checkBrandDuplicate(request.name);
 
     const brand = await prisma.brand.create({
@@ -58,6 +63,9 @@ export class BrandService {
   static async update(request: UpdateBrandRequest) {
     request = BrandValidation.UPDATE.parse(request);
     await this.checkBrandExists(request.id);
+
+    if (request.name) request.name = request.name.trim().toLowerCase();
+
     if (request.name) {
       await this.checkBrandDuplicate(request.name);
     }

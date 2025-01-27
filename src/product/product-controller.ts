@@ -4,13 +4,18 @@ import { encodeBase64 } from "hono/utils/encode";
 import { authMiddleware } from "../middleware/auth-middleware";
 import { isAdmin } from "../middleware/is-admin";
 import { ProductService } from "./product-service";
-import { CreateProductRequest } from "./prodect-model";
+import { CreateProductRequest, SearchProductRequest } from "./prodect-model";
 
 const app = new Hono();
 
 // get all product
 app.get("/", async (c: Context) => {
-  const response = await ProductService.get();
+  const request: SearchProductRequest = {
+    category: c.req.query("category")?.split(","),
+    brand: c.req.query("brand")?.split(","),
+    page: Number(c.req.query("page")),
+  };
+  const response = await ProductService.get(request);
 
   return c.json({
     success: true,

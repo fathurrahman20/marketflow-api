@@ -1,7 +1,11 @@
 import { HTTPException } from "hono/http-exception";
 import { prisma } from "../application/database";
 import { ProductValidation } from "./product-validation";
-import { CreateProductRequest, UpdateProductRequest } from "./prodect-model";
+import {
+  CreateProductRequest,
+  SearchProductRequest,
+  UpdateProductRequest,
+} from "./prodect-model";
 import { Context } from "hono";
 import { encodeBase64 } from "hono/utils/encode";
 import { v2 as cloudinary } from "cloudinary";
@@ -9,8 +13,27 @@ import { fromError } from "zod-validation-error";
 import { randomUUIDv7 } from "bun";
 
 export class ProductService {
-  static async get() {
+  static async get(request: SearchProductRequest) {
+    const take = 6;
+    const page = request.page ? request.page - 1 : 0;
+    const skip = page * take;
     return await prisma.product.findMany({
+      take,
+      skip,
+      where: {
+        AND: [
+          {
+            category: {
+              name: { in: request.category },
+            },
+          },
+          {
+            brand: {
+              name: { in: request.brand },
+            },
+          },
+        ],
+      },
       include: { brand: true, category: true, reviews: true },
     });
   }
@@ -69,7 +92,11 @@ export class ProductService {
       price: Number(price),
       brandId: Number(brandId),
       categoryId: Number(categoryId),
-      slug: `${name?.trim().split(" ").join("-")}-${uniqueId}`,
+      slug: `${name
+        ?.trim()
+        .replace(/\//g, "-")
+        .split(" ")
+        .join("-")}-${uniqueId}`,
     };
     const { error } = ProductValidation.CREATE.safeParse(payload);
 
@@ -78,7 +105,7 @@ export class ProductService {
     }
 
     const url = await cloudinary.uploader.upload(
-      `data:image/png;base64,${base64}`
+      `data:image/png;base64,${byteArrayBuffer}`
     );
 
     payload.image = {
@@ -132,7 +159,7 @@ export class ProductService {
       brandId: brandId ? Number(brandId) : product?.brandId,
       categoryId: categoryId ? Number(categoryId) : product?.categoryId,
       slug: name
-        ? `${name?.trim().split(" ").join("-")}-${uniqueId}`
+        ? `${name?.trim().replace(/\//g, "-").split(" ").join("-")}-${uniqueId}`
         : product?.slug,
     };
 
@@ -157,7 +184,9 @@ export class ProductService {
     }
 
     if (name) {
-      await this.checkProductDuplicate(name?.trim().split(" ").join("-"));
+      await this.checkProductDuplicate(
+        name?.trim().replace(/\//g, "-").split(" ").join("-")
+      );
     }
 
     const updatedProduct = await prisma.product.update({

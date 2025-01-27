@@ -22,3 +22,9 @@ export type UpdateProductRequest = {
   brandId?: number;
   categoryId?: number;
 };
+
+export type SearchProductRequest = {
+  category?: string[] | undefined;
+  brand?: string[] | undefined;
+  page: number;
+};

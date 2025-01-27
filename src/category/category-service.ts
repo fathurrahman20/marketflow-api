@@ -45,6 +45,11 @@ export class CategoryService {
   static async create(request: CreateCategoryRequest) {
     request = CategoryValidation.CREATE.parse(request);
 
+    request = {
+      ...request,
+      name: request.name.trim().toLowerCase(),
+    };
+
     await this.checkCategoryDuplicate(request.name);
 
     const category = await prisma.category.create({
@@ -58,6 +63,9 @@ export class CategoryService {
   static async update(request: UpdateCategoryRequest) {
     request = CategoryValidation.UPDATE.parse(request);
     await this.checkCategoryExists(request.id);
+
+    if (request.name) request.name = request.name.trim().toLowerCase();
+
     if (request.name) {
       await this.checkCategoryDuplicate(request.name);
     }

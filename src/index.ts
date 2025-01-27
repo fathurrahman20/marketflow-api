@@ -8,13 +8,17 @@ import product from "./product/product-controller";
 import { HTTPException } from "hono/http-exception";
 import { ZodError } from "zod";
 import { fromError } from "zod-validation-error";
+import uiScalar from "./docs";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { apiReference } from "@scalar/hono-api-reference";
+import { AppVariables } from "./middleware/auth-middleware";
 
-const app = new Hono();
+const app = new OpenAPIHono();
 
 app.use(
   "*",
   cors({
-    origin: Bun.env.FE_URL!,
+    origin: [Bun.env.FE_URL!, "http://localhost:3000"],
     allowMethods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
   })
@@ -26,28 +30,68 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
-app.route("/api", user);
+app.get(
+  "/reference",
+  apiReference({
+    theme: "purple",
+    spec: {
+      url: "/openapi.json",
+    },
+  })
+);
+
+app.doc("/openapi.json", (openapi) => {
+  return {
+    ...openapi,
+    openapi: "3.1.0",
+    info: {
+      version: "1.0.0",
+      title: "Marketflow API",
+      description: "API for Marketflow project.",
+    },
+    components: {
+      securitySchemes: {
+        authTokenCookie: {
+          type: "apiKey",
+          in: "cookie",
+          name: "auth_token",
+        },
+        refreshTokenCookie: {
+          type: "apiKey",
+          in: "cookie",
+          name: "refresh_token",
+        },
+      },
+    },
+  };
+});
+
+app.route("/api", uiScalar);
+app.route("/api/products", product);
 app.route("/api/brands", brand);
 app.route("/api/categories", category);
-app.route("/api/products", product);
+app.route("/api", user);
 
 // Error Handling
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {
     c.status(err.status);
     return c.json({
-      errors: err.message,
+      success: false,
+      message: err.message,
     });
   } else if (err instanceof ZodError) {
     c.status(400);
     const validationError = fromError(err);
     return c.json({
-      errors: validationError.toString(),
+      success: false,
+      message: validationError.toString(),
     });
   } else {
     c.status(500);
     return c.json({
-      errors: err.message,
+      success: false,
+      message: err.message,
     });
   }
 });
