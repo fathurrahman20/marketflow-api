@@ -1,12 +1,19 @@
 {
   "name": "market-api",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "prestart": "bunx prisma migrate deploy",
+    "start": "bun run src/index.ts",
+    "postinstall": "bunx prisma generate"
   },
   "dependencies": {
+    "@hono/zod-openapi": "^0.18.3",
     "@prisma/client": "^6.2.1",
+    "@scalar/hono-api-reference": "^0.5.168",
+    "cloudinary": "^2.5.1",
     "hono": "^4.6.16",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
