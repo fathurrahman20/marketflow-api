@@ -8,7 +8,7 @@ export class CategoryService {
     return await prisma.category.findMany({ include: { products: true } });
   }
 
-  static async checkCategoryExists(id: number) {
+  static async checkCategoryExists(id: string) {
     const category = await prisma.category.findUnique({
       where: { id },
     });
@@ -32,7 +32,7 @@ export class CategoryService {
     return brands;
   }
 
-  static async getById(id: number) {
+  static async getById(id: string) {
     id = CategoryValidation.GET.parse(id);
     await this.checkCategoryExists(id);
 
@@ -79,7 +79,7 @@ export class CategoryService {
     return updatedCategory;
   }
 
-  static async delete(id: number) {
+  static async delete(id: string) {
     id = CategoryValidation.DELETE.parse(id);
 
     await this.checkCategoryExists(id);

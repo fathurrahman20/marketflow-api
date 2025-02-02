@@ -3,6 +3,6 @@ export type CreateCategoryRequest = {
 };
 
 export type UpdateCategoryRequest = {
-  id: number;
+  id: string;
   name?: string;
 };

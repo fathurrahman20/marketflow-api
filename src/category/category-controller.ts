@@ -16,7 +16,7 @@ app.get("/", async (c: Context) => {
 });
 
 app.get("/:id", async (c: Context) => {
-  const request = Number(c.req.param("id"));
+  const request = c.req.param("id");
   const response = await CategoryService.getById(request);
 
   return c.json({
@@ -42,7 +42,7 @@ app.post("/", async (c: Context) => {
 });
 
 app.patch("/:id", async (c: Context) => {
-  const id = Number(c.req.param("id"));
+  const id = c.req.param("id");
   const request = (await c.req.json()) as UpdateCategoryRequest;
   request.id = id;
 
@@ -56,7 +56,7 @@ app.patch("/:id", async (c: Context) => {
 });
 
 app.delete("/:id", async (c: Context) => {
-  const id = Number(c.req.param("id"));
+  const id = c.req.param("id");
   const response = await CategoryService.delete(id);
 
   return c.json({

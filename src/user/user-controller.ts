@@ -25,7 +25,7 @@ app.get("/users", async (c) => {
 });
 
 app.get("/users/:id", async (c) => {
-  const id = Number(c.req.param("id"));
+  const id = c.req.param("id");
   const response = await UserService.getUser(id);
 
   return c.json(
