@@ -18,8 +18,8 @@ const app = new OpenAPIHono();
 app.use(
   "*",
   cors({
-    origin: [Bun.env.FE_URL!, "http://localhost:3000"],
-    allowMethods: ["GET", "POST", "PATCH", "DELETE"],
+    origin: [Bun.env.FE_URL!, Bun.env.BE_URL!],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
 );
