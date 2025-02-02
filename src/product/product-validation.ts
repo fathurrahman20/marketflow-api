@@ -1,7 +1,7 @@
 import { z, ZodType } from "zod";
 
 export class ProductValidation {
-  static readonly GET: ZodType = z.number().positive();
+  static readonly GET: ZodType = z.string();
 
   static readonly CREATE: ZodType = z.object({
     name: z.string().min(5).max(100),
@@ -12,8 +12,8 @@ export class ProductValidation {
       url: z.string(),
     }),
     price: z.number().positive(),
-    brandId: z.number().positive(),
-    categoryId: z.number().positive(),
+    brandId: z.string(),
+    categoryId: z.string(),
   });
 
   static readonly UPDATE: ZodType = z.object({
@@ -25,9 +25,9 @@ export class ProductValidation {
       url: z.string().optional(),
     }),
     price: z.number().positive().optional(),
-    brandId: z.number().positive().optional(),
-    categoryId: z.number().positive().optional(),
+    brandId: z.string(),
+    categoryId: z.string(),
   });
 
-  static readonly DELETE: ZodType = z.number().positive();
+  static readonly DELETE: ZodType = z.string();
 }

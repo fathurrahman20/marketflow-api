@@ -3,6 +3,6 @@ export type CreateBrandRequest = {
 };
 
 export type UpdateBrandRequest = {
-  id: number;
+  id: string;
   name?: string;
 };

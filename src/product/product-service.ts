@@ -38,7 +38,7 @@ export class ProductService {
     });
   }
 
-  static async checkProductExists(id: number) {
+  static async checkProductExists(id: string) {
     const product = await prisma.product.findUnique({ where: { id } });
 
     if (!product) {
@@ -58,7 +58,7 @@ export class ProductService {
     return product;
   }
 
-  static async getProduct(id: number) {
+  static async getProduct(id: string) {
     id = ProductValidation.GET.parse(id);
     await this.checkProductExists(id);
 
@@ -74,8 +74,8 @@ export class ProductService {
     const description = formData.get("description") as string;
     const file = formData.get("file") as File;
     const price = formData.get("price");
-    const brandId = formData.get("brandId");
-    const categoryId = formData.get("categoryId");
+    const brandId = formData.get("brandId") as string;
+    const categoryId = formData.get("categoryId") as string;
     const byteArrayBuffer = await file.arrayBuffer();
     const base64 = encodeBase64(byteArrayBuffer);
     const uniqueId = randomUUIDv7().split("-")[0];
@@ -90,8 +90,8 @@ export class ProductService {
       description,
       image,
       price: Number(price),
-      brandId: Number(brandId),
-      categoryId: Number(categoryId),
+      brandId: brandId,
+      categoryId: categoryId,
       slug: `${name
         ?.trim()
         .replace(/\//g, "-")
@@ -131,15 +131,15 @@ export class ProductService {
   }
 
   static async update(c: Context) {
-    const id = Number(c.req.param("id"));
+    const id = c.req.param("id");
 
     const formData = await c.req.formData();
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const file = formData.get("file") as File;
     const price = formData.get("price");
-    const brandId = formData.get("brandId");
-    const categoryId = formData.get("categoryId");
+    const brandId = formData.get("brandId") as string;
+    const categoryId = formData.get("categoryId") as string;
     const byteArrayBuffer = await file?.arrayBuffer();
     const base64 = encodeBase64(byteArrayBuffer);
     const uniqueId = randomUUIDv7().split("-")[0];
@@ -156,8 +156,8 @@ export class ProductService {
       description: description ? description : product?.description,
       image,
       price: price ? Number(price) : product?.price,
-      brandId: brandId ? Number(brandId) : product?.brandId,
-      categoryId: categoryId ? Number(categoryId) : product?.categoryId,
+      brandId: brandId ? brandId : product?.brandId,
+      categoryId: categoryId ? categoryId : product?.categoryId,
       slug: name
         ? `${name?.trim().replace(/\//g, "-").split(" ").join("-")}-${uniqueId}`
         : product?.slug,
@@ -207,7 +207,7 @@ export class ProductService {
     return updatedProduct;
   }
 
-  static async deleteProduct(id: number) {
+  static async deleteProduct(id: string) {
     await this.checkProductExists(id);
     await prisma.product.delete({ where: { id } });
 

@@ -26,7 +26,7 @@ app.get("/", async (c: Context) => {
 
 // get product by id
 app.get("/:id", async (c: Context) => {
-  const id = Number(c.req.param("id"));
+  const id = c.req.param("id");
 
   const response = await ProductService.getProduct(id);
 
@@ -74,7 +74,7 @@ app.patch("/:id", async (c: Context) => {
 });
 
 app.delete("/:id", async (c: Context) => {
-  const id = Number(c.req.param("id"));
+  const id = c.req.param("id");
 
   const response = await ProductService.deleteProduct(id);
 

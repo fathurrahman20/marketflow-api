@@ -9,8 +9,8 @@ export type CreateProductRequest = {
   description: string;
   image: Image;
   price: number;
-  brandId: number;
-  categoryId: number;
+  brandId: string;
+  categoryId: string;
 };
 
 export type UpdateProductRequest = {
@@ -19,8 +19,8 @@ export type UpdateProductRequest = {
   description?: string;
   image?: Image;
   price?: number;
-  brandId?: number;
-  categoryId?: number;
+  brandId?: string;
+  categoryId?: string;
 };
 
 export type SearchProductRequest = {

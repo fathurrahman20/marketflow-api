@@ -8,7 +8,7 @@ export class BrandService {
     return await prisma.brand.findMany({ include: { products: true } });
   }
 
-  static async checkBrandExists(id: number) {
+  static async checkBrandExists(id: string) {
     const brand = await prisma.brand.findUnique({
       where: { id },
     });
@@ -32,7 +32,7 @@ export class BrandService {
     return brands;
   }
 
-  static async getById(id: number) {
+  static async getById(id: string) {
     id = BrandValidation.GET.parse(id);
     await this.checkBrandExists(id);
 
@@ -79,7 +79,7 @@ export class BrandService {
     return updatedBrand;
   }
 
-  static async delete(id: number) {
+  static async delete(id: string) {
     id = BrandValidation.DELETE.parse(id);
 
     await this.checkBrandExists(id);
