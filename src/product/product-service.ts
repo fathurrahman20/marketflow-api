@@ -105,7 +105,7 @@ export class ProductService {
     }
 
     const url = await cloudinary.uploader.upload(
-      `data:image/png;base64,${byteArrayBuffer}`
+      `data:image/png;base64,${base64}`
     );
 
     payload.image = {
