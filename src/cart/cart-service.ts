@@ -22,6 +22,11 @@ export class CartService {
 
     const existingCartItem = await prisma.cartItem.findFirst({
       where: { cartId: cart.id, productId: request.productId },
+      include: { product: true },
+    });
+
+    const product = await prisma.product.findUnique({
+      where: { id: request.productId },
     });
 
     if (existingCartItem) {
@@ -29,6 +34,9 @@ export class CartService {
         where: { id: existingCartItem.id },
         data: {
           quantity: existingCartItem?.quantity + request.quantity,
+          totalPrice:
+            existingCartItem.product.price *
+            Number(existingCartItem?.quantity + request.quantity),
         },
       });
     } else {
@@ -37,6 +45,7 @@ export class CartService {
           cartId: cart.id,
           productId: request.productId,
           quantity: request.quantity,
+          totalPrice: product?.price,
         },
       });
     }
