@@ -17,10 +17,11 @@ import { AppVariables } from "./middleware/auth-middleware";
 const app = new OpenAPIHono();
 
 app.use(
-  "*",
+  "/api/*",
   cors({
     origin: [Bun.env.FE_URL!, Bun.env.BE_URL!],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowHeaders: ["Content-Type"],
     credentials: true,
   })
 );
@@ -98,4 +99,7 @@ app.onError(async (err, c) => {
   }
 });
 
-export default app;
+export default {
+  port: Bun.env.PORT || 3000,
+  fetch: app.fetch,
+};
