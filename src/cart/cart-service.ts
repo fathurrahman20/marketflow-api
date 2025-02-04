@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 import { prisma } from "../application/database";
 import { CreateCartItemRequest } from "./cart-model";
+import { HTTPException } from "hono/http-exception";
 
 export class CartService {
   static async get(user: User) {
@@ -30,6 +31,18 @@ export class CartService {
     });
 
     if (existingCartItem) {
+      if (request.quantity === 0) {
+        throw new HTTPException(400, {
+          message: "Product quantity cannot be zero.",
+        });
+      }
+
+      if (existingCartItem.quantity === product?.stock) {
+        throw new HTTPException(400, {
+          message: "Product is out of stock. Cannot add more items.",
+        });
+      }
+
       await prisma.cartItem.update({
         where: { id: existingCartItem.id },
         data: {
