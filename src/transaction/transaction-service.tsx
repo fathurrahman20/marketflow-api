@@ -11,7 +11,7 @@ export class TransactionService {
   static async get(user: User) {
     return await prisma.transaction.findMany({
       where: { userId: user.id },
-      include: { items: true },
+      include: { items: { include: { product: true } } },
     });
   }
   static async create(user: User, request: CreateTransactionRequest) {

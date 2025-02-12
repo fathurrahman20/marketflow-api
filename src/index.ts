@@ -7,6 +7,7 @@ import category from "./category/category-controller";
 import product from "./product/product-controller";
 import cart from "./cart/cart-controller";
 import transaction from "./transaction/transaction-controller";
+import wishlist from "./wishlist/wishlist-controller";
 import { HTTPException } from "hono/http-exception";
 import { ZodError } from "zod";
 import { fromError } from "zod-validation-error";
@@ -75,6 +76,7 @@ app.route("/api/brands", brand);
 app.route("/api/categories", category);
 app.route("/api/carts", cart);
 app.route("/api/transactions", transaction);
+app.route("/api/wishlists", wishlist);
 app.route("/api", user);
 
 // Error Handling
