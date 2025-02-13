@@ -1,4 +1,4 @@
-# Simple E-commerce API
+# Marketflow API
 
 ## Deskripsi
 
@@ -8,6 +8,7 @@ Ini adalah backend API sederhana untuk aplikasi e-commerce. API ini mendukung fi
 >
 > - Dokumentasi API menggunakan **Scalar**, namun **belum tersedia** saat ini.
 > - Fitur **Review** masih dalam pengembangan dan belum diimplementasikan dalam API.
+> - **Integrasi Payment Gateway** masih dalam pengembangan dan belum diimplementasikan dalam API.
 
 ---
 
@@ -51,3 +52,7 @@ Ini adalah backend API sederhana untuk aplikasi e-commerce. API ini mendukung fi
 > **Catatan:** Dokumentasi API menggunakan Scalar, namun belum tersedia saat ini.
 
 ---
+
+## Frontend
+
+Marketflow API terhubung dengan [**Marketflow Web**](https://github.com/fathurrahman20/marketflow-web), sebuah aplikasi frontend e-commerce yang dibangun menggunakan React.js dan TypeScript.
