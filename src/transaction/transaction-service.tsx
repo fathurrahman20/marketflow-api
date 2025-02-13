@@ -16,20 +16,6 @@ export class TransactionService {
   }
   static async create(user: User, request: CreateTransactionRequest) {
     request = CartValidation.CREATE.parse(request);
-    let transaction = await prisma.transaction.create({
-      data: {
-        userId: user.id,
-        address: request.address,
-        city: request.city,
-        name: request.name,
-        phone: request.phone,
-        postalCode: request.postalCode,
-        province: request.province,
-        totalAmount: 0,
-      },
-    });
-
-    let totalAmount = 30000;
 
     const cart = await prisma.cart.findUnique({
       where: { userId: user.id },
@@ -40,10 +26,34 @@ export class TransactionService {
       throw new HTTPException(400, { message: "Cart is empty" });
     }
 
+    let totalAmount = 30000;
+
     for (const item of cart.items) {
       let itemTotalPrice = item.product.price * item.quantity;
       totalAmount += itemTotalPrice;
 
+      if (item.product.stock < item.quantity) {
+        throw new HTTPException(400, {
+          message: `Product ${item.product.name} is out of stock. Cannot add more items.`,
+        });
+      }
+    }
+
+    const transaction = await prisma.transaction.create({
+      data: {
+        userId: user.id,
+        address: request.address,
+        city: request.city,
+        name: request.name,
+        phone: request.phone,
+        postalCode: request.postalCode,
+        province: request.province,
+        totalAmount,
+      },
+      include: { items: true },
+    });
+
+    for (const item of cart.items) {
       await prisma.transactionItem.create({
         data: {
           transactionId: transaction.id,
@@ -59,16 +69,10 @@ export class TransactionService {
       });
     }
 
-    const updatedTransaction = await prisma.transaction.update({
-      where: { id: transaction.id },
-      data: { totalAmount },
-      include: { items: true },
-    });
-
     await prisma.cartItem.deleteMany({
       where: { cartId: cart.id },
     });
 
-    return updatedTransaction;
+    return transaction;
   }
 }
