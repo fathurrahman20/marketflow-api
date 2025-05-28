@@ -72,12 +72,12 @@ app.doc("/openapi.json", (openapi) => {
 });
 
 app.route("/api", uiScalar);
+app.route("/api/transactions-notification", transactionNotif);
 app.route("/api/products", product);
 app.route("/api/brands", brand);
 app.route("/api/categories", category);
 app.route("/api/carts", cart);
 app.route("/api/transactions", transaction);
-app.route("/api/transactions-notification", transactionNotif);
 app.route("/api/wishlists", wishlist);
 app.route("/api", user);
 
