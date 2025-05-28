@@ -19,6 +19,8 @@ import { AppVariables } from "./middleware/auth-middleware";
 
 const app = new OpenAPIHono();
 
+app.route("/api/transactions-notification", transactionNotif);
+
 app.use(
   "/api/*",
   cors({
@@ -72,7 +74,6 @@ app.doc("/openapi.json", (openapi) => {
 });
 
 app.route("/api", uiScalar);
-app.route("/api/transactions-notification", transactionNotif);
 app.route("/api/products", product);
 app.route("/api/brands", brand);
 app.route("/api/categories", category);

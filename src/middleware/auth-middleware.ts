@@ -7,7 +7,7 @@ import { JWTPayload } from "hono/utils/jwt/types";
 import { getSignedCookie } from "hono/cookie";
 
 export interface AppVariables extends JWTPayload {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: string;
