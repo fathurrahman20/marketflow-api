@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { Cart, Status, User } from "@prisma/client";
 import {
   CreateTransactionItemRequest,
   CreateTransactionRequest,
@@ -6,6 +6,9 @@ import {
 import { prisma } from "../application/database";
 import { HTTPException } from "hono/http-exception";
 import { CartValidation } from "./transaction-validation";
+import cuid from "cuid";
+// @ts-ignore
+import snap from "../utils/midtrans";
 
 export class TransactionService {
   static async get(user: User) {
@@ -39,8 +42,46 @@ export class TransactionService {
       }
     }
 
+    const items = cart.items.map((item) => ({
+      id: item.product.id,
+      price: item.product.price,
+      quantity: item.quantity,
+      name: item.product.name,
+    }));
+
+    const transactionId = cuid();
+
+    let parameter = {
+      transaction_details: {
+        order_id: transactionId,
+        gross_amount: totalAmount,
+      },
+      item_details: items,
+      customer_details: {
+        first_name: user.name,
+        email: user.email,
+      },
+      callbacks: {
+        finish: `${Bun.env.FE_URL}/history`,
+        error: `${Bun.env.FE_URL}/history`,
+        pending: `${Bun.env.FE_URL}/history`,
+      },
+    };
+
+    let transactionToken = "";
+    let transactionRedirectUrl = "";
+    const response = await snap.createTransaction(parameter);
+
+    console.log("ResPoNSE: ", response);
+    console.log("ItEMS: ", parameter);
+
+    if (!response.token) {
+      throw new HTTPException(500);
+    }
+
     const transaction = await prisma.transaction.create({
       data: {
+        id: transactionId,
         userId: user.id,
         address: request.address,
         city: request.city,
@@ -49,6 +90,8 @@ export class TransactionService {
         postalCode: request.postalCode,
         province: request.province,
         totalAmount,
+        snap_token: response.token,
+        snap_redirect_url: response.redirect_url,
       },
       include: { items: true },
     });
@@ -56,7 +99,7 @@ export class TransactionService {
     for (const item of cart.items) {
       await prisma.transactionItem.create({
         data: {
-          transactionId: transaction.id,
+          transactionId,
           productId: item.productId,
           quantity: item.quantity,
           price: item.product.price,
@@ -74,5 +117,19 @@ export class TransactionService {
     });
 
     return transaction;
+  }
+
+  static async updateTransactionStatus(
+    transactionId: string,
+    status: Status,
+    paymentType: string | null = null
+  ) {
+    return prisma.transaction.update({
+      where: { id: transactionId },
+      data: {
+        status,
+        payment_type: paymentType,
+      },
+    });
   }
 }
