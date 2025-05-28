@@ -7,6 +7,7 @@ import category from "./category/category-controller";
 import product from "./product/product-controller";
 import cart from "./cart/cart-controller";
 import transaction from "./transaction/transaction-controller";
+import transactionNotif from "./transaction-notification/transaction-notification-controller";
 import wishlist from "./wishlist/wishlist-controller";
 import { HTTPException } from "hono/http-exception";
 import { ZodError } from "zod";
@@ -76,6 +77,7 @@ app.route("/api/brands", brand);
 app.route("/api/categories", category);
 app.route("/api/carts", cart);
 app.route("/api/transactions", transaction);
+app.route("/api/transactions-notification", transactionNotif);
 app.route("/api/wishlists", wishlist);
 app.route("/api", user);
 
@@ -88,11 +90,13 @@ app.onError(async (err, c) => {
       message: err.message,
     });
   } else if (err instanceof ZodError) {
+    console.log("errorr");
     c.status(400);
     const validationError = fromError(err);
     return c.json({
       success: false,
-      message: validationError.toString(),
+      message: err,
+      // message: validationError.toString(),
     });
   } else {
     c.status(500);

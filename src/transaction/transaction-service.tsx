@@ -1,4 +1,4 @@
-import { Cart, User } from "@prisma/client";
+import { Cart, Status, User } from "@prisma/client";
 import {
   CreateTransactionItemRequest,
   CreateTransactionRequest,
@@ -117,5 +117,19 @@ export class TransactionService {
     });
 
     return transaction;
+  }
+
+  static async updateTransactionStatus(
+    transactionId: string,
+    status: Status,
+    paymentType: string | null = null
+  ) {
+    return prisma.transaction.update({
+      where: { id: transactionId },
+      data: {
+        status,
+        payment_type: paymentType,
+      },
+    });
   }
 }

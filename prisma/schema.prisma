@@ -146,6 +146,7 @@ model Transaction {
   snap_token        String?           @db.VarChar(255)
   snap_redirect_url String?           @db.VarChar(255)
   paymentMethod     PaymentMethod     @default(CASH)
+  payment_type      String?           @db.VarChar(110)
   status            Status            @default(Pending)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
