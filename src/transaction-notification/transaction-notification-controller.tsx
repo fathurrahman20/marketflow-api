@@ -4,16 +4,16 @@ import { TransactionNotificationService } from "./transaction-notification-servi
 import { authMiddleware } from "../middleware/auth-middleware";
 import {
   CreateTransactionRequest,
-  TransactionType,
+  TPaymentNotification,
 } from "./transaction-notification-model";
 
 const app = new Hono();
 
 app.post("/", async (c: Context) => {
-  const request = (await c.req.json()) as TransactionType;
+  const request = (await c.req.json()) as TPaymentNotification;
 
   // const response = await TransactionService.create(user, request);
-  TransactionNotificationService.getTransactionById(request.id).then(
+  TransactionNotificationService.getTransactionById(request.order_id).then(
     (transaction: any) => {
       if (transaction) {
         TransactionNotificationService.updateStatusBasedOnMidtransResponse(

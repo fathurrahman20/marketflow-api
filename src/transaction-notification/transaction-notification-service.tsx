@@ -2,6 +2,7 @@ import { Cart, User } from "@prisma/client";
 import {
   CreateTransactionItemRequest,
   CreateTransactionRequest,
+  TPaymentNotification,
 } from "./transaction-notification-model";
 import { prisma } from "../application/database";
 import { HTTPException } from "hono/http-exception";
@@ -21,7 +22,7 @@ export class TransactionNotificationService {
   }
   static async updateStatusBasedOnMidtransResponse(
     transaction_id: string,
-    data: any
+    data: TPaymentNotification
   ) {
     const hash = crypto
       .createHash("sha512")

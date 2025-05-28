@@ -15,18 +15,49 @@ export type CreateTransactionItemRequest = {
   price: number;
 };
 
-export type TransactionType = {
-  id: string;
-  user_id: string;
-  address: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  phone: string;
-  totalAmount: number;
-  paymentMethod: PaymentMethod;
-  status: Status;
-  snap_redirect_url: string;
-  snap_token: string;
+export interface VaNumber {
+  va_number: string;
+  bank: string;
+}
+
+export interface PaymentNotification {
+  va_numbers: VaNumber[];
+  transaction_time: string;
+  transaction_status: string;
+  transaction_id: string;
+  status_message: string;
+  status_code: string;
+  signature_key: string;
+  settlement_time: string;
   payment_type: string;
+  payment_amounts: any[]; // Atau tentukan tipe yang lebih spesifik jika Anda tahu strukturnya
+  order_id: string;
+  merchant_id: string;
+  gross_amount: string;
+  fraud_status: string;
+  expiry_time: string;
+  currency: string;
+}
+
+// Atau sebagai type
+export type TPaymentNotification = {
+  va_numbers: {
+    va_number: string;
+    bank: string;
+  }[];
+  transaction_time: string;
+  transaction_status: string;
+  transaction_id: string;
+  status_message: string;
+  status_code: string;
+  signature_key: string;
+  settlement_time: string;
+  payment_type: string;
+  payment_amounts: any[]; // Atau tentukan tipe yang lebih spesifik jika Anda tahu strukturnya
+  order_id: string;
+  merchant_id: string;
+  gross_amount: string;
+  fraud_status: string;
+  expiry_time: string;
+  currency: string;
 };
