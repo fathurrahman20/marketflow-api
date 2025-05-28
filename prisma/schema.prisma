@@ -108,21 +108,24 @@ model Wishlist {
 }
 
 model Transaction {
-  id            String            @id @default(cuid())
-  userId        String            @map("user_id")
-  address       String            @db.VarChar(255)
-  totalAmount   Float
-  paymentMethod PaymentMethod     @default(CASH)
-  status        Status            @default(Pending)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  city          String            @db.VarChar(100)
-  phone         String            @db.VarChar(20)
-  postalCode    String            @db.VarChar(20)
-  province      String            @db.VarChar(100)
-  name          String            @db.VarChar(100)
-  user          User              @relation(fields: [userId], references: [id])
-  items         TransactionItem[]
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id")
+  address           String            @db.VarChar(255)
+  totalAmount       Float
+  paymentMethod     PaymentMethod     @default(CASH)
+  status            Status            @default(Pending)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  city              String            @db.VarChar(100)
+  phone             String            @db.VarChar(20)
+  postalCode        String            @db.VarChar(20)
+  province          String            @db.VarChar(100)
+  name              String            @db.VarChar(100)
+  snap_token        String?           @db.VarChar(255)
+  snap_redirect_url String?           @db.VarChar(255)
+  payment_type      String?           @db.VarChar(110)
+  user              User              @relation(fields: [userId], references: [id])
+  items             TransactionItem[]
 
   @@map("transactions")
 }
