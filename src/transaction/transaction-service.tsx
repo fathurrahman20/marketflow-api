@@ -29,7 +29,7 @@ export class TransactionService {
       throw new HTTPException(400, { message: "Cart is empty" });
     }
 
-    let totalAmount = 0;
+    let totalAmount = 30000;
 
     for (const item of cart.items) {
       let itemTotalPrice = item.product.price * item.quantity;
