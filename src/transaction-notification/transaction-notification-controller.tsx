@@ -9,8 +9,6 @@ import {
 
 const app = new Hono();
 
-app.use(authMiddleware);
-
 app.post("/", async (c: Context) => {
   const request = (await c.req.json()) as TransactionType;
 
