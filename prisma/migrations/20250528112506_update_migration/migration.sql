@@ -9,8 +9,4 @@
 
 */
 -- AlterTable
-ALTER TABLE "transactions" ADD COLUMN     "city" VARCHAR(100) NOT NULL,
-ADD COLUMN     "name" VARCHAR(100) NOT NULL,
-ADD COLUMN     "phone" VARCHAR(20) NOT NULL,
-ADD COLUMN     "postalCode" VARCHAR(20) NOT NULL,
-ADD COLUMN     "province" VARCHAR(100) NOT NULL;
+ALTER TABLE "transactions" ADD COLUMN     "payment_type" VARCHAR(110);
